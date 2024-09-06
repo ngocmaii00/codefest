@@ -16,7 +16,7 @@ import java.util.List;
 
 public class Main {
     private static final String SERVER_URL = "https://cf-server.jsclub.dev";
-    private static final String GAME_ID = "126517";
+    private static final String GAME_ID = "179403";
     private static final String PLAYER_NAME = "lilip";
 
     public static double calDistance(Node x, Node y){
@@ -35,6 +35,21 @@ public class Main {
             }
         });
         return gunList;
+    }
+
+    public static List<Player> sortEnemy(List<Player> enemyList, Player player){
+        enemyList.sort(new Comparator<Player>() {
+            @Override
+            public int compare(Player o1, Player o2) {
+                if(calDistance(player, o1) < calDistance(player, o2)){
+                    return -1;
+                }else if(calDistance(player, o1) >= calDistance(player, o2)){
+                    return 1;
+                }
+                return 0;
+            }
+        });
+        return enemyList;
     }
 
     public static void main(String[] args) throws IOException {
@@ -72,16 +87,42 @@ public class Main {
                             hero.pickupItem();
                         }else{
                             restrictedPoints.addAll(otherPlayers);
-                            hero.move(PathUtils.getShortestPath(gameMap, restrictedPoints, player, targetWeapon, false));
+                            String path = PathUtils.getShortestPath(gameMap, restrictedPoints, player, targetWeapon, false);
+                            hero.move(path);
+                            System.out.println("Path: "+path);
+                            hero.move(path);
                         }
-                    }else if(currentWeapon != null){
-                        
                     }
-
-
-
-
-
+                    if (currentWeapon != null){
+                        final List<Player> enemies = sortEnemy(gameMap.getOtherPlayerInfo(), player);
+                        int i = 0;
+                        Player currentEnemy = enemies.get(i);
+                        while(!enemies.get(i).getIsAlive()){
+                            i++;
+                            currentEnemy = enemies.get(i);
+                        }
+                        System.out.println("Current Enemy: "+ currentEnemy.getPlayerName());
+                        Node target = new Node(currentEnemy.getX(), currentEnemy.getY());
+                        int dx = player.getX() - target.getX();
+                        int dy = player.getY() - target.getY();
+                        if((Math.abs(dx) <= currentWeapon.getRange()) && (player.getY() == target.getY())){
+                            if(dx > 0){
+                                hero.shoot("l");
+                            }else{
+                                hero.shoot("r");
+                            }
+                        }else if(Math.abs(dy) <= currentWeapon.getRange() && (player.getX() == target.getX())){
+                            if(dy > 0){
+                                hero.shoot("d");
+                            }else{
+                                hero.shoot("u");
+                            }
+                        }else{
+                            String path = PathUtils.getShortestPath(gameMap, restrictedPoints, player, target, false);
+                            hero.move(path);
+                            System.out.println("Path: "+path);
+                        }
+                    }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
