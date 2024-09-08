@@ -10,7 +10,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Downloads/CodeFest2024.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../../CodeFest2024.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
